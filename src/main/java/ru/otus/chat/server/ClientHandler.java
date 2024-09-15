@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class ClientHandler {
     private Server server;
@@ -29,17 +30,39 @@ public class ClientHandler {
             try {
                 System.out.println("Клиент подключился ");
                 while (true) {
+                    boolean isBreak = false;
                     String message = in.readUTF();
                     if (message.startsWith("/")) {
-                        if (message.startsWith("/exit")){
-                            sendMessage("/exitok");
-                            break;
-                        }
-                        
+                        String[] messageArray = message.trim().split(" ");
+                        String command = messageArray[0];
+                        switch (command) {
+                            case "/exit":
+                                sendMessage("exit");
+                                isBreak = true;
+                                break;
+                            case "/w":
+                                if (messageArray.length <= 2) {
+                                    sendMessage("Введите сообщеение!");
+                                    break;
+                                }
+                                String messageWithoutCommand = String.join(" ", Arrays.copyOfRange(messageArray, 2, messageArray.length));
 
+                                sendMessage("[private_to]" + messageArray[1] + " : " + messageWithoutCommand);
+                                server.sendByUserNameMessage(
+                                    messageArray[1],
+                                    this,
+                                    username + "[private_from] : " + messageWithoutCommand
+                                );
+                                break;
+                            default:
+                                sendMessage("нет такой команды!");
+                                break;
+                        }
                     } else {
                         server.broadcastMessage(username + " : " + message);
                     }
+
+                    if (isBreak) break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Server {
     private int port;
@@ -39,5 +40,16 @@ public class Server {
         for (ClientHandler client : clients) {
             client.sendMessage(message);
         }
+    }
+
+    public synchronized void sendByUserNameMessage(String userName, ClientHandler sender, String message) {
+        for (ClientHandler client : clients) {
+            if(Objects.equals(client.getUsername(), userName)) {
+                client.sendMessage(message);
+                return;
+            }
+        }
+
+        sender.sendMessage("Такого пользователя нет!");
     }
 }

@@ -10,10 +10,17 @@ import java.util.Objects;
 public class Server {
     private int port;
     private List<ClientHandler> clients;
+    private AuthenticatedProvider authenticatedProvider;
 
     public Server(int port) {
         this.port = port;
         clients = new ArrayList<>();
+        authenticatedProvider = new InMemoryAuthenticationProvider(this);
+        authenticatedProvider.initialize();
+    }
+
+    public AuthenticatedProvider getAuthenticatedProvider() {
+        return authenticatedProvider;
     }
 
     public void start() {
@@ -21,7 +28,7 @@ public class Server {
             System.out.println("Сервер запущен на порту: " + port);
             while (true) {
                 Socket socket = serverSocket.accept();
-                subscribe(new ClientHandler(this, socket));
+                new ClientHandler(this, socket);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,6 +47,15 @@ public class Server {
         for (ClientHandler client : clients) {
             client.sendMessage(message);
         }
+    }
+
+    public boolean isUsernameBusy(String username) {
+        for (ClientHandler client : clients) {
+            if (client.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public synchronized void sendByUserNameMessage(String userName, ClientHandler sender, String message) {

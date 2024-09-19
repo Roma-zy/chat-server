@@ -68,4 +68,23 @@ public class Server {
 
         sender.sendMessage("Такого пользователя нет!");
     }
+
+    public synchronized void kickByUserName(String userName, ClientHandler clientHandler) {
+        Role role = authenticatedProvider.getRoleByUserName(clientHandler.getUsername());
+        if (role != Role.ADMIN) {
+            clientHandler.sendMessage("[system] нет прав!");
+        }
+        for (int i = 0; i < clients.size(); i++) {
+            if (Objects.equals(clients.get(i).getUsername(), userName)) {
+                ClientHandler client = clients.get(i);
+                clients.remove(i);
+                client.sendMessage("[system] Вас удалили из чата!");
+                client.disconnect();
+
+                clientHandler.sendMessage("[system] Пользователь " + userName + " удален");
+
+                return;
+            }
+        }
+    }
 }

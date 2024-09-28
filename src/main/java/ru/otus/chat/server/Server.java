@@ -15,7 +15,7 @@ public class Server {
     public Server(int port) {
         this.port = port;
         clients = new ArrayList<>();
-        authenticatedProvider = new InMemoryAuthenticationProvider(this);
+        authenticatedProvider = new InDBProvider(this);
         authenticatedProvider.initialize();
     }
 

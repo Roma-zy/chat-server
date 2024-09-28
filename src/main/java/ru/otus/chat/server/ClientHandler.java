@@ -69,7 +69,7 @@ public class ClientHandler {
                             "/auth login password или регистрацию командой /reg login password username");
                 }
                 System.out.println("Клиент "+ username+ " успешно прошел аутентификацию");
-                //цпкл работы
+
                 while (true) {
                     boolean isBreak = false;
                     String message = in.readUTF();
@@ -94,6 +94,14 @@ public class ClientHandler {
                                     this,
                                     username + "[private_from] : " + messageWithoutCommand
                                 );
+                                break;
+                            case "/kick":
+                                if (messageArray.length <= 1) {
+                                    sendMessage("Введите имя пользователя!");
+                                    break;
+                                }
+
+                                server.kickByUserName(messageArray[1], this);
                                 break;
                             default:
                                 sendMessage("нет такой команды!");
